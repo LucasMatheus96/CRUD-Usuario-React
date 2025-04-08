@@ -19,12 +19,12 @@ const initialState = {
 export default class UserCrud extends Component {
 
     state = { ...initialState }
-
-    componentWillUnmount(){
-        axios(baseUrl).then(resp=> {
-            this.setState({list:resp.data})
-        })
-    }
+     
+    componentWillMount() {
+        axios(baseUrl).then(resp => {
+          this.setState({ list: resp.data });
+        });
+      }
 
     clear(){
         this.setState({ user: initialState.user })
@@ -55,6 +55,7 @@ export default class UserCrud extends Component {
     }
 
     renderForm(){
+
         return (
             <div className="form">
                 <div className="col-12 col-md-6">
@@ -89,10 +90,60 @@ export default class UserCrud extends Component {
         )
     }
 
+    load(user){
+        this.setState({user})
+    }
+
+   
+    remove(user){
+        axios.delete(`${baseUrl}/${user.id}`).then(resp =>{
+            const list = this.getUpdatedList(user,false)
+            this.setState({list})
+        })
+    }
+
+   renderTable() {
+    return (
+      <table className="table mt-4">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderRows()}</tbody>
+      </table>
+    );
+  }
+ 
+
+    renderRows(){
+        return this.state.list.map(user =>{
+            return (
+                <tr key = {user.id}> 
+                    <td>{user.id}</td>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                        <button className="btn btn-warning">
+                            <i className="fa fa-pencil" onClick={()=>this.load(user)}></i>
+                        </button>
+                        <button className="btn btn-danger ml-2">
+                            <i className="fa fa-trash" onClick={()=>this.remove(user)}></i>
+                        </button>
+                    </td>
+                </tr>
+            )
+        })
+    }
     render(){
+        console.log(this.state.list)
         return (
             <Main {...headerProps}>
                 {this.renderForm()}
+                {this.renderTable()}
             </Main>
         )
     }
